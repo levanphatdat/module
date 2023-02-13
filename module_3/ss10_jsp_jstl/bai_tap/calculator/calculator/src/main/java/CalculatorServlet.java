@@ -29,12 +29,18 @@ public class CalculatorServlet extends HttpServlet {
         switch (operator) {
             case "Addition":
                 operator = "+";
+                break;
             case "Subtraction":
                 operator = "-";
+                break;
             case "Multiplication":
                 operator = "*";
+                break;
             case "Division":
                 operator = "%";
+                break;
+            default:
+                operator="";
         }
         request.setAttribute("first-operand", firstOperand);
         request.setAttribute("operator", operator);
