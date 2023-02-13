@@ -2,27 +2,19 @@
   Created by IntelliJ IDEA.
   User: DAT LE
   Date: 13/02/2023
-  Time: 4:04 PM
+  Time: 9:00 PM
   To change this template use File | Settings | File Templates.
 --%>
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>List</title>
+    <title>Search</title>
 </head>
 <body>
-<h1>Product</h1>
 <p>
-    <a href="/product?action=create">Create new product</a>
+    <a href="/product">Back to product list</a>
 </p>
-<form >
-    <input type="text" name="search" placeholder="Search By Name">
-    <input type="text" name="action" hidden value="search">
-    <button>Search</button>
-
-</form>
 <table border="1">
     <tr>
         <td>Id</td>
@@ -33,11 +25,11 @@
     </tr>
     <c:forEach items='${requestScope["product"]}' var="product">
         <tr>
-            <td><a href="/product?action=view&id=${product.getId()}">${product.getId()}</a></td>
-            <td>${product.getName()}</td>
-            <td>${product.getPrice()}</td>
-            <td>${product.getProductDescription()}</td>
-            <td>${product.getProducer()}</td>
+            <td><a href="/product?action=view&id= ${product.getId}">${product.getId}</a></td>
+            <td> ${product.GetName}</td>
+            <td>${product.getPrice}</td>
+            <td>${product.getProductDescription}</td>
+            <td>${product.getProducer}</td>
             <td><a href="/product?action=edit&id=${product.getId()}">Edit</a></td>
             <td><a href="/product?action=delete&id=${product.getId()}">Delete</a></td>
         </tr>

@@ -22,19 +22,19 @@
         <legend>Product information</legend>
         <table>
             <tr>
-                <td>Name: </td>
+                <td>Name:</td>
                 <td>${requestScope["product"].getName()}</td>
             </tr>
             <tr>
-                <td>Price: </td>
+                <td>Price:</td>
                 <td>${requestScope["product"].getPrice()}</td>
             </tr>
             <tr>
-                <td>ProductDescription: </td>
+                <td>ProductDescription:</td>
                 <td>${requestScope["product"].getProductDescription()}</td>
             </tr>
             <tr>
-                <td>Producer: </td>
+                <td>Producer:</td>
                 <td>${requestScope["product"].getProducer()}</td>
             </tr>
             <tr>

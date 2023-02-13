@@ -34,9 +34,6 @@ public class ProductServlet extends HttpServlet {
             case "delete":
                 delete(request, response);
                 break;
-            case "view":
-                view(request, response);
-                break;
             default:
                 break;
         }
@@ -59,6 +56,11 @@ public class ProductServlet extends HttpServlet {
             case "delete":
                 showDelete(request, response);
                 break;
+            case "view":
+                view(request, response);
+                break;
+            case "search":
+                search(request, response);
             default:
                 display(request, response);
                 break;
@@ -77,6 +79,7 @@ public class ProductServlet extends HttpServlet {
             e.printStackTrace();
         }
     }
+
     private void showCreate(HttpServletRequest request, HttpServletResponse response) {
         RequestDispatcher dispatcher = request.getRequestDispatcher("view/create.jsp");
         try {
@@ -87,13 +90,14 @@ public class ProductServlet extends HttpServlet {
             e.printStackTrace();
         }
     }
+
     private void create(HttpServletRequest request, HttpServletResponse response) {
         String name = request.getParameter("name");
         String price = request.getParameter("price");
         String productDescription = request.getParameter("product-description");
         String producer = request.getParameter("producer");
         List<Product> productList = iProductService.display();
-        int id=productList.size()+1;
+        int id = productList.size() + 1;
         Product product = new Product(id, name, price, productDescription, producer);
         iProductService.save(product);
         RequestDispatcher dispatcher = request.getRequestDispatcher("view/create.jsp");
@@ -106,12 +110,13 @@ public class ProductServlet extends HttpServlet {
             e.printStackTrace();
         }
     }
+
     private void showEdit(HttpServletRequest request, HttpServletResponse response) {
         int id = Integer.parseInt(request.getParameter("id"));
         Product product = this.iProductService.findById(id);
         RequestDispatcher dispatcher;
-        if(product == null){
-            dispatcher = request.getRequestDispatcher("error-404.jsp");
+        if (product == null) {
+            dispatcher = request.getRequestDispatcher("view/error-404.jsp");
         } else {
             request.setAttribute("product", product);
             dispatcher = request.getRequestDispatcher("view/edit.jsp");
@@ -124,6 +129,7 @@ public class ProductServlet extends HttpServlet {
             e.printStackTrace();
         }
     }
+
     private void update(HttpServletRequest request, HttpServletResponse response) {
         int id = Integer.parseInt(request.getParameter("id"));
         String name = request.getParameter("name");
@@ -132,8 +138,8 @@ public class ProductServlet extends HttpServlet {
         String producer = request.getParameter("producer");
         Product product = this.iProductService.findById(id);
         RequestDispatcher dispatcher;
-        if(product == null){
-            dispatcher = request.getRequestDispatcher("error-404.jsp");
+        if (product == null) {
+            dispatcher = request.getRequestDispatcher("view/error-404.jsp");
         } else {
             product.setName(name);
             product.setPrice(price);
@@ -152,12 +158,13 @@ public class ProductServlet extends HttpServlet {
             e.printStackTrace();
         }
     }
+
     private void showDelete(HttpServletRequest request, HttpServletResponse response) {
         int id = Integer.parseInt(request.getParameter("id"));
         Product product = this.iProductService.findById(id);
         RequestDispatcher dispatcher;
-        if(product == null){
-            dispatcher = request.getRequestDispatcher("error-404.jsp");
+        if (product == null) {
+            dispatcher = request.getRequestDispatcher("view/error-404.jsp");
         } else {
             request.setAttribute("product", product);
             dispatcher = request.getRequestDispatcher("view/delete.jsp");
@@ -170,12 +177,13 @@ public class ProductServlet extends HttpServlet {
             e.printStackTrace();
         }
     }
+
     private void delete(HttpServletRequest request, HttpServletResponse response) {
         int id = Integer.parseInt(request.getParameter("id"));
         Product product = this.iProductService.findById(id);
         RequestDispatcher dispatcher;
-        if(product == null){
-            dispatcher = request.getRequestDispatcher("error-404.jsp");
+        if (product == null) {
+            dispatcher = request.getRequestDispatcher("view/error-404.jsp");
         } else {
             this.iProductService.remove(id);
             try {
@@ -185,16 +193,31 @@ public class ProductServlet extends HttpServlet {
             }
         }
     }
+
     private void view(HttpServletRequest request, HttpServletResponse response) {
         int id = Integer.parseInt(request.getParameter("id"));
         Product product = this.iProductService.findById(id);
         RequestDispatcher dispatcher;
         if (product == null) {
-            dispatcher = request.getRequestDispatcher("error-404.jsp");
+            dispatcher = request.getRequestDispatcher("view/error-404.jsp");
         } else {
             request.setAttribute("product", product);
             dispatcher = request.getRequestDispatcher("view/view.jsp");
         }
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void search(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String name = request.getParameter("search");
+        List<Product> product = iProductService.searchByName(name);
+        request.setAttribute("product", product);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("view/search.jsp");
         try {
             dispatcher.forward(request, response);
         } catch (ServletException e) {

@@ -7,7 +7,8 @@ import repository.ProductRepository;
 import java.util.List;
 
 public class ProductService implements IProductService {
-    IProductRepository iProductRepository=new ProductRepository();
+    IProductRepository iProductRepository = new ProductRepository();
+
     @Override
     public List<Product> display() {
         return iProductRepository.display();
@@ -31,5 +32,10 @@ public class ProductService implements IProductService {
     @Override
     public void remove(int id) {
         iProductRepository.remove(id);
+    }
+
+    @Override
+    public List<Product> searchByName(String name) {
+        return iProductRepository.searchByName(name);
     }
 }
