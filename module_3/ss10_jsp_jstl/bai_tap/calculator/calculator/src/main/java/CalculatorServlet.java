@@ -40,7 +40,7 @@ public class CalculatorServlet extends HttpServlet {
                 operator = "%";
                 break;
             default:
-                operator="";
+                break;
         }
         request.setAttribute("first-operand", firstOperand);
         request.setAttribute("operator", operator);
