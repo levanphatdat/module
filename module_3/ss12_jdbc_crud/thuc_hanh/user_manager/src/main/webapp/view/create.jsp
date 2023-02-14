@@ -19,13 +19,13 @@
     <h2>
         <a href="users?action=users">List All Users</a>
     </h2>
+    <caption>
+        <h2>Add New User</h2>
+    </caption>
 </center>
 <div align="center">
     <form method="post">
         <table border="1" cellpadding="5">
-            <caption>
-                <h2>Add New User</h2>
-            </caption>
             <tr>
                 <th>User Name:</th>
                 <td>
@@ -41,7 +41,7 @@
             <tr>
                 <th>Country:</th>
                 <td>
-                    <input type="text" name="country" id="country" size="15"/>
+                    <input type="text" name="country" id="country" size="45"/>
                 </td>
             </tr>
             <tr>

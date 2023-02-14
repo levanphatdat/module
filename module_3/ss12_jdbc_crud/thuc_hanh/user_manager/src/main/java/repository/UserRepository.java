@@ -4,6 +4,7 @@ import model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -142,8 +143,11 @@ public class UserRepository implements IUserRepository {
     @Override
     public List<User> sortByName() {
         List<User> users = this.selectAllUsers();
-        users.sort((Comparator.comparing(user -> ((User)user).getName())
-                .thenComparingInt(user -> ((User)user).getId())));
+        Collections.sort(users, Comparator.comparing(user -> ((User) user).getName())
+                .thenComparingInt(user -> ((User) user).getId()));
+
+//        users.sort((Comparator.comparing(user -> ((User)user).getName())
+//                .thenComparingInt(user -> ((User)user).getId())));
         return users;
         // ở đây xong rồi còn servlet với view
     }

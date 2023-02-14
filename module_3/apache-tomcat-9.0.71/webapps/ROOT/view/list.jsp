@@ -20,14 +20,14 @@
         <a href="/users?action=create">Add New User</a>
     </h2>
     <h2>List of Users</h2>
-    <form >
+    <form>
         <input type="text" name="search" placeholder="Search By Name">
         <input type="text" name="action" hidden value="search">
         <button>Search</button>
-
     </form>
+    <a name="sort" id="sort" class="btn btn-primary" href="/users?action=sort" role="button">Sort by name</a>
 </div>
-<div align="center">
+<div align="center" class="mt-3">
     <table border="5" cellpadding="5">
         <tr>
             <th>ID</th>

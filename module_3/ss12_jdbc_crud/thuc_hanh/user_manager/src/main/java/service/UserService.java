@@ -9,6 +9,7 @@ import java.util.List;
 
 public class UserService implements IUserService {
     IUserRepository iUserRepository = new UserRepository();
+
     @Override
     public void insertUser(User user) throws SQLException {
         iUserRepository.insertUser(user);

@@ -64,6 +64,8 @@ public class UserServlet extends HttpServlet {
                     break;
                 case "search":
                     search(request, response);
+                case "sort":
+                    sortList(request, response);
                 default:
                     listUser(request, response);
                     break;
@@ -137,6 +139,18 @@ public class UserServlet extends HttpServlet {
         List<User> listUser  = userService.searchByCountry(country);
         request.setAttribute("listUser", listUser);
         RequestDispatcher dispatcher = request.getRequestDispatcher("view/search.jsp");
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    private void sortList(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        List<User> listUser  = userService.sortByName();
+        request.setAttribute("listUser", listUser);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("view/sort.jsp");
         try {
             dispatcher.forward(request, response);
         } catch (ServletException e) {
