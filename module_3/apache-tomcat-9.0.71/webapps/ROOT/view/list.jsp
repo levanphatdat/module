@@ -20,6 +20,12 @@
         <a href="/users?action=create">Add New User</a>
     </h2>
     <h2>List of Users</h2>
+    <form >
+        <input type="text" name="search" placeholder="Search By Name">
+        <input type="text" name="action" hidden value="search">
+        <button>Search</button>
+
+    </form>
 </div>
 <div align="center">
     <table border="5" cellpadding="5">

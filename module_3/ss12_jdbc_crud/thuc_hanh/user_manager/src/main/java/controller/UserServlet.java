@@ -62,6 +62,8 @@ public class UserServlet extends HttpServlet {
                 case "delete":
                     deleteUser(request, response);
                     break;
+                case "search":
+                    search(request, response);
                 default:
                     listUser(request, response);
                     break;
@@ -90,7 +92,7 @@ public class UserServlet extends HttpServlet {
         int id = Integer.parseInt(request.getParameter("id"));
         User existingUser = userService.selectUser(id);
         RequestDispatcher dispatcher = request.getRequestDispatcher("view/edit.jsp");
-        request.setAttribute("user", existingUser);
+        request.setAttribute("users", existingUser);
         dispatcher.forward(request, response);
 
     }
@@ -130,9 +132,17 @@ public class UserServlet extends HttpServlet {
         dispatcher.forward(request, response);
     }
 
-    private void searchByCountry(HttpServletRequest request, HttpServletResponse response)
-            throws SQLException, IOException, ServletException {
-        String country = request.getParameter("country");
-        
+    private void search(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        String country = request.getParameter("search");
+        List<User> listUser  = userService.searchByCountry(country);
+        request.setAttribute("listUser", listUser);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("view/search.jsp");
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

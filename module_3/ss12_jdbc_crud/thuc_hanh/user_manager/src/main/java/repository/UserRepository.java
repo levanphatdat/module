@@ -4,10 +4,11 @@ import model.User;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class UserRepository implements IUserRepository {
-    private String jdbcURL = "jdbc:mysql://localhost:3306/demo?useSSL=false";
+    private String jdbcURL = "jdbc:mysql://localhost:3306/demo";
     private String jdbcUsername = "root";
     private String jdbcPassword = "lvpd1900";
 
@@ -122,6 +123,31 @@ public class UserRepository implements IUserRepository {
         }
         return rowUpdated;
     }
+
+    @Override
+    public List<User> searchByCountry(String country) {
+        List<User> users = this.selectAllUsers();
+        List<User> userList = new ArrayList<>();
+        String userCountry;
+        country = country.toLowerCase();
+        for (User user : users) {
+            userCountry = user.getCountry().toLowerCase();
+            if (userCountry.contains(country)) {
+                userList.add(user);
+            }
+        }
+        return userList;
+    }
+
+    @Override
+    public List<User> sortByName() {
+        List<User> users = this.selectAllUsers();
+        users.sort((Comparator.comparing(user -> ((User)user).getName())
+                .thenComparingInt(user -> ((User)user).getId())));
+        return users;
+        // ở đây xong rồi còn servlet với view
+    }
+
 
     private void printSQLException(SQLException ex) {
         for (Throwable e : ex) {
