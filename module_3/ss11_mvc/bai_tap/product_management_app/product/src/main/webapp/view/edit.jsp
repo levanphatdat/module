@@ -35,7 +35,7 @@
             <tr>
                 <td>Product Description:</td>
                 <td><input type="text" name="description" id="product-description"
-                           value="${requestScope["product"].getDescription()}"></td>
+                           value="${requestScope["product"].getProductDescription()}"></td>
             </tr>
             <tr>
                 <td>Producer:</td>
