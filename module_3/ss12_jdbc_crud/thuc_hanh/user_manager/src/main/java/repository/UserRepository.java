@@ -115,17 +115,15 @@ public class UserRepository implements IUserRepository {
             country = "";
         }
         try {
-            CallableStatement callableStatement = getConnection().prepareCall("call list_user('?');");
+            CallableStatement callableStatement = getConnection().prepareCall("call list_user(?)");
             callableStatement.setString(1, country);
             ResultSet rs = callableStatement.executeQuery();
-            User user;
             while (rs.next()) {
-                user = new User();
-                user.setId(rs.getInt("id"));
-                user.setName(rs.getString("name"));
-                user.setEmail(rs.getString("email"));
-                user.setCountry(rs.getString("country"));
-                users.add(user);
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String country1 = rs.getString("country");
+                users.add(new User(id, name, email, country1));
             }
         } catch (SQLException e) {
             printSQLException(e);
@@ -135,8 +133,15 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public boolean deleteUser(int id) throws SQLException {
+//        boolean rowDeleted;
+//        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(DELETE_USERS_SQL);) {
+//            statement.setInt(1, id);
+//            rowDeleted = statement.executeUpdate() > 0;
+//        }
+//        return rowDeleted;
+
         boolean rowDeleted;
-        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(DELETE_USERS_SQL);) {
+        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement("call delete_user(?)");) {
             statement.setInt(1, id);
             rowDeleted = statement.executeUpdate() > 0;
         }
@@ -145,13 +150,23 @@ public class UserRepository implements IUserRepository {
 
     @Override
     public boolean updateUser(User user) throws SQLException {
+//        boolean rowUpdated;
+//        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(UPDATE_USERS_SQL);) {
+//            statement.setString(1, user.getName());
+//            statement.setString(2, user.getEmail());
+//            statement.setString(3, user.getCountry());
+//            statement.setInt(4, user.getId());
+//
+//            rowUpdated = statement.executeUpdate() > 0;
+//        }
+//        return rowUpdated;
+
         boolean rowUpdated;
-        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement(UPDATE_USERS_SQL);) {
+        try (Connection connection = getConnection(); PreparedStatement statement = connection.prepareStatement("call edit_user(?,?,?,?);");) {
             statement.setString(1, user.getName());
             statement.setString(2, user.getEmail());
             statement.setString(3, user.getCountry());
             statement.setInt(4, user.getId());
-
             rowUpdated = statement.executeUpdate() > 0;
         }
         return rowUpdated;
