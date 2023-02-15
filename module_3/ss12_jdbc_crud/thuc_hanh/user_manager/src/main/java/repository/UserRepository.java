@@ -2,7 +2,9 @@ package repository;
 
 import model.User;
 
+import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,6 +20,18 @@ public class UserRepository implements IUserRepository {
     private static final String SELECT_ALL_USERS = "select * from users";
     private static final String DELETE_USERS_SQL = "delete from users where id = ?;";
     private static final String UPDATE_USERS_SQL = "update users set name = ?,email= ?, country =? where id = ?;";
+    private static final String SEARCH_BY_COUNTRY = "select * from users where country like concat('%',?,'%');";
+    private static final String SQL_INSERT = "insert into employee (name, salary, created_date) values (?,?,?)";
+    private static final String SQL_UPDATE = "update employee set salary=? where name=?";
+    private static final String SQL_TABLE_CREATE = "create table employee"
+            + "("
+            + " id serial,"
+            + " name varchar(100) not null,"
+            + " salary numeric(15, 2) not null,"
+            + " created_date timestamp,"
+            + " primary key (id)"
+            + ")";
+    private static final String SQL_TABLE_DROP = "drop table if exists employee";
 
     public UserRepository() {
     }
@@ -75,25 +89,43 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public List<User> selectAllUsers() {
-// using try-with-resources to avoid closing resources (boiler plate code)
+    public List<User> selectAllUsers(String country) {
+//        List<User> users = new ArrayList<>();
+//        if (country == null) {
+//            country = "";
+//        }
+//        try {
+//            CallableStatement callableStatement = getConnection().prepareCall(SEARCH_BY_COUNTRY);
+//            callableStatement.setString(1, country);
+//            ResultSet rs = callableStatement.executeQuery();
+//            while (rs.next()) {
+//                int id = rs.getInt("id");
+//                String name = rs.getString("name");
+//                String email = rs.getString("email");
+//                String country1 = rs.getString("country");
+//                users.add(new User(id, name, email, country1));
+//            }
+//        } catch (SQLException e) {
+//            printSQLException(e);
+//        }
+//        return users;
+
         List<User> users = new ArrayList<>();
-        // Step 1: Establishing a Connection
-        try (Connection connection = getConnection();
-
-             // Step 2:Create a statement using connection object
-             PreparedStatement preparedStatement = connection.prepareStatement(SELECT_ALL_USERS);) {
-            System.out.println(preparedStatement);
-            // Step 3: Execute the query or update query
-            ResultSet rs = preparedStatement.executeQuery();
-
-            // Step 4: Process the ResultSet object.
+        if (country == null) {
+            country = "";
+        }
+        try {
+            CallableStatement callableStatement = getConnection().prepareCall("call list_user('?');");
+            callableStatement.setString(1, country);
+            ResultSet rs = callableStatement.executeQuery();
+            User user;
             while (rs.next()) {
-                int id = rs.getInt("id");
-                String name = rs.getString("name");
-                String email = rs.getString("email");
-                String country = rs.getString("country");
-                users.add(new User(id, name, email, country));
+                user = new User();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("name"));
+                user.setEmail(rs.getString("email"));
+                user.setCountry(rs.getString("country"));
+                users.add(user);
             }
         } catch (SQLException e) {
             printSQLException(e);
@@ -126,23 +158,8 @@ public class UserRepository implements IUserRepository {
     }
 
     @Override
-    public List<User> searchByCountry(String country) {
-        List<User> users = this.selectAllUsers();
-        List<User> userList = new ArrayList<>();
-        String userCountry;
-        country = country.toLowerCase();
-        for (User user : users) {
-            userCountry = user.getCountry().toLowerCase();
-            if (userCountry.contains(country)) {
-                userList.add(user);
-            }
-        }
-        return userList;
-    }
-
-    @Override
     public List<User> sortByName() {
-        List<User> users = this.selectAllUsers();
+        List<User> users = this.selectAllUsers(null);
         Collections.sort(users, Comparator.comparing(user -> ((User) user).getName())
                 .thenComparingInt(user -> ((User) user).getId()));
 
@@ -152,6 +169,154 @@ public class UserRepository implements IUserRepository {
         // ở đây xong rồi còn servlet với view
     }
 
+    @Override
+    public User getUserById(int id) {
+        User user = null;
+        String query = "{CALL get_user_by_id(?)}";
+
+        // Step 1: Establishing a Connection
+        try (Connection connection = getConnection();
+
+             // Step 2:Create a statement using connection object
+             CallableStatement callableStatement = connection.prepareCall(query)) {
+
+            callableStatement.setInt(1, id);
+
+            // Step 3: Execute the query or update query
+            ResultSet rs = callableStatement.executeQuery();
+
+            // Step 4: Process the ResultSet object.
+            while (rs.next()) {
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String country = rs.getString("country");
+                user = new User(id, name, email, country);
+            }
+        } catch (SQLException e) {
+            printSQLException(e);
+        }
+        return user;
+    }
+
+    @Override
+    public void insertUserStore(User user) throws SQLException {
+        String query = "{CALL insert_user(?,?,?)}";
+
+        // try-with-resource statement will auto close the connection.
+        try (Connection connection = getConnection();
+             CallableStatement callableStatement = connection.prepareCall(query);) {
+            callableStatement.setString(1, user.getName());
+            callableStatement.setString(2, user.getEmail());
+            callableStatement.setString(3, user.getCountry());
+            System.out.println(callableStatement);
+            callableStatement.executeUpdate();
+        } catch (SQLException e) {
+            printSQLException(e);
+        }
+    }
+
+    @Override
+    public void addUserTransaction(User user, int[] permision) {
+        Connection conn = null;
+        PreparedStatement pstmt = null;
+        PreparedStatement pstmtAssignment = null;
+        ResultSet rs = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
+            pstmt = conn.prepareStatement(INSERT_USERS_SQL, Statement.RETURN_GENERATED_KEYS);
+            pstmt.setString(1, user.getName());
+            pstmt.setString(2, user.getEmail());
+            pstmt.setString(3, user.getCountry());
+            int rowAffected = pstmt.executeUpdate();
+            rs = pstmt.getGeneratedKeys();
+            int userId = 0;
+            if (rs.next())
+                userId = rs.getInt(1);
+            if (rowAffected == 1) {
+                String sqlPivot = "INSERT INTO user_permision(user_id,permision_id) "
+                        + "VALUES(?,?)";
+                pstmtAssignment = conn.prepareStatement(sqlPivot);
+                for (int permisionId : permision) {
+                    pstmtAssignment.setInt(1, userId);
+                    pstmtAssignment.setInt(2, permisionId);
+                    pstmtAssignment.executeUpdate();
+                }
+                conn.commit();
+            } else {
+                conn.rollback();
+            }
+        } catch (SQLException ex) {
+            try {
+                if (conn != null)
+                    conn.rollback();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+            System.out.println(ex.getMessage());
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (pstmt != null) pstmt.close();
+                if (pstmtAssignment != null) pstmtAssignment.close();
+                if (conn != null) conn.close();
+            } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void insertUpdateWithoutTransaction() {
+        try (Connection conn = getConnection();
+             Statement statement = conn.createStatement();
+             PreparedStatement psInsert = conn.prepareStatement(SQL_INSERT);
+             PreparedStatement psUpdate = conn.prepareStatement(SQL_UPDATE)) {
+            statement.execute(SQL_TABLE_DROP);
+            statement.execute(SQL_TABLE_CREATE);
+            psInsert.setString(1, "Quynh");
+            psInsert.setBigDecimal(2, new BigDecimal(10));
+            psInsert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            psInsert.execute();
+            psInsert.setString(1, "Ngan");
+            psInsert.setBigDecimal(2, new BigDecimal(20));
+            psInsert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            psInsert.execute();
+            psUpdate.setBigDecimal(2, new BigDecimal(999.99));
+            psUpdate.setString(2, "Quynh");
+            psUpdate.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void insertUpdateUseTransaction() {
+        try (Connection conn = getConnection();
+             Statement statement = conn.createStatement();
+             PreparedStatement psInsert = conn.prepareStatement(SQL_INSERT);
+             PreparedStatement psUpdate = conn.prepareStatement(SQL_UPDATE)) {
+            statement.execute(SQL_TABLE_DROP);
+            statement.execute(SQL_TABLE_CREATE);
+            conn.setAutoCommit(false); // default true
+            psInsert.setString(1, "Quynh");
+            psInsert.setBigDecimal(2, new BigDecimal(10));
+            psInsert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            psInsert.execute();
+            psInsert.setString(1, "Ngan");
+            psInsert.setBigDecimal(2, new BigDecimal(20));
+            psInsert.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            psInsert.execute();
+            psUpdate.setBigDecimal(2, new BigDecimal(999.99));
+            psUpdate.setString(2, "Quynh");
+            psUpdate.execute();
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     private void printSQLException(SQLException ex) {
         for (Throwable e : ex) {

@@ -21,8 +21,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<User> selectAllUsers() {
-        return iUserRepository.selectAllUsers();
+    public List<User> selectAllUsers(String country) {
+        return iUserRepository.selectAllUsers(country);
     }
 
     @Override
@@ -36,13 +36,33 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<User> searchByCountry(String country) {
-        return iUserRepository.searchByCountry(country);
+    public List<User> sortByName() {
+        return iUserRepository.sortByName();
     }
 
     @Override
-    public List<User> sortByName() {
-        return iUserRepository.sortByName();
+    public User getUserById(int id) {
+        return iUserRepository.getUserById(id);
+    }
+
+    @Override
+    public void insertUserStore(User user) throws SQLException {
+        iUserRepository.insertUserStore(user);
+    }
+
+    @Override
+    public void addUserTransaction(User user, int[] permision) {
+        iUserRepository.addUserTransaction(user, permision);
+    }
+
+    @Override
+    public void insertUpdateWithoutTransaction() {
+        iUserRepository.insertUpdateWithoutTransaction();
+    }
+
+    @Override
+    public void insertUpdateUseTransaction() {
+        iUserRepository.insertUpdateUseTransaction();
     }
 
 }

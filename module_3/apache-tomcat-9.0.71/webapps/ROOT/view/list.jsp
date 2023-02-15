@@ -18,11 +18,12 @@
     <h1>User Management</h1>
     <h2>
         <a href="/users?action=create">Add New User</a>
-    </h2>
-    <h2>List of Users</h2>
-    <form>
-        <input type="text" name="search" placeholder="Search By Name">
-        <input type="text" name="action" hidden value="search">
+    </h2><h2>
+    <a href="/users?action=list">List of Users</a>
+</h2>
+    <form method="get">
+        <h1>Search by Country</h1>
+        <input type="text" name="search" placeholder="Search By Country">
         <button>Search</button>
     </form>
     <a name="sort" id="sort" class="btn btn-primary" href="/users?action=sort" role="button">Sort by name</a>
